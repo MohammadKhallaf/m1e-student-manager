@@ -20,7 +20,6 @@ async function readOne(id) {
   const student = await manager.getStudentById(id);
   console.log(student);
 }
-// readOne(1724102443870);
 
 // update age -> ali
 

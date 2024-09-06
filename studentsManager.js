@@ -83,15 +83,13 @@ class StudentManager {
   async deleteOneStudent(id) {
     await this.loadStudents();
     const idx = this.students.findIndex((item) => {
-      return item.id === id;
+      return item.id.toString() === id.toString();
     });
 
     if (idx > -1) {
       // add check
       this.students.splice(idx, 1);
       await this.saveStudents();
-    } else {
-      throw new Error("this item is not exist");
     }
   }
   // delete all students -> don't use it in real world
@@ -113,7 +111,7 @@ class StudentManager {
     await this.loadStudents();
 
     const idx = this.students.findIndex((item) => {
-      return item.id === id;
+      return item.id.toString() === id.toString();
     });
     const oldData = this.students[idx];
 

@@ -1,17 +1,1 @@
-[
-  {
-    "name": "khaled",
-    "age": 19,
-    "id": 1725380354047
-  },
-  {
-    "name": "khaled",
-    "age": 19,
-    "id": 1725380355685
-  },
-  {
-    "name": "khaled",
-    "age": 19,
-    "id": 1725380356580
-  }
-]
+[{"name":"khaled ahmed","age":19,"id":1725380354047,"salary":3000,"NID":"wertyuio"},{"name":"khaled","age":19,"id":1725380355685}]
