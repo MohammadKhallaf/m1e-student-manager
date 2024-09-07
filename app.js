@@ -1,9 +1,11 @@
 const express = require("express");
-const StudentManager = require("./studentsManager");
 const Ajv = require("ajv");
+const cors = require("cors");
+
+const ProductManager = require("./productManager");
 
 const app = express();
-const manager = new StudentManager();
+const manager = new ProductManager();
 const ajv = new Ajv();
 
 // title  -> title length>3
@@ -11,50 +13,72 @@ const ajv = new Ajv();
 // price -> required > 0
 // discount
 
-const studentSchema = {
+const productSchema = {
   type: "object",
   properties: {
-    name: {
+    price: {
+      type: "number",
+      minimum: 0,
+    },
+    title: {
       type: "string",
-      //  30
+      minLength: 3,
     },
-    age: {
+    discount: {
+      // 0 -> 100
       type: "number",
-      minimum: 5,
-      maximum: 60,
+      minimum: 0,
+      maximum: 100,
     },
-    salary: {
-      type: "number",
-    },
-    NID: {
+    description: {
       type: "string",
     },
   },
-  required: ["name", "NID"],
+  required: ["title", "price"],
   additionalProperties: false,
 };
 
-const validateStudent = ajv.compile(studentSchema);
+const validateProduct = ajv.compile(productSchema);
+const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: "*", // control the accepted domains to access our endpoint
+};
+// BUILT-IN MIDDLEWARE
+app.use(cors(corsOptions));
 app.use(express.json()); // json parser
 
-//  environment variables
+// APPLICATION LEVEL MIDDLEWARE
+app.use((request, response, next) => {
+  console.log(`${new Date().toString()} - ${request.method} - ${request.url} `);
+  next();
+});
 
-const PORT = process.env.PORT || 3000;
+const authMiddleware = (req, res, next) => {
+  // check req.body.key --> X
+  // check header
+
+  const apiKey = req.headers["x-api-key"];
+  console.log(apiKey, "In the auth MIDDLEWARE");
+  if (apiKey && apiKey === "m1e") next();
+  else res.status(401).send("Unauthorized");
+};
+
+//  environment variables
 
 app.get("/", (req, res) => {
   res.send("Hello,world");
 });
 
 // get one
-app.get("/students/:id", async (req, res) => {
-  const student = await manager.getStudentById(req.params.id);
-  console.log(student);
-  res.json(student);
+app.get("/products/:id", async (req, res) => {
+  const product = await manager.getProductById(req.params.id);
+
+  res.json(product);
 });
 
-// get filtered
-app.get("/students/", async (req, res) => {
+// get all or filtered
+app.get("/products/", async (req, res) => {
   const query = req.query;
   // casting => + | Number()
   const from = +query.from;
@@ -62,38 +86,54 @@ app.get("/students/", async (req, res) => {
 
   if (from && to) {
     console.log(from, to);
-    const studentList = await manager.getStudentByAgeFilter(from, to);
+    const productList = await manager.getProductsByPriceFilter(from, to);
 
-    res.json(studentList);
+    res.json(productList);
   } else {
-    const studentList = await manager.getAllStudents();
-    res.json(studentList);
+    const productList = await manager.getAllProducts();
+    res.json(productList);
   }
 });
 
 // update
-app.patch("/students/:id", async (req, res) => {
+app.patch("/products/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
-  await manager.updateStudent(id, req.body);
-  res.json("Success");
+  const newProduct = await manager.updateProduct(id, req.body);
+  res.json(newProduct);
 });
 
-app.delete("/students/:id", async (req, res) => {
+app.delete("/products/:id", authMiddleware, async (req, res) => {
   const { id } = req.params;
-  await manager.deleteOneStudent(id);
+  await manager.deleteOneProduct(id);
   res.json("Success");
 });
 
 // create
-app.post("/students", async (request, res) => {
+app.post("/products", authMiddleware, async (request, res) => {
   const data = request.body;
-  const valid = validateStudent(data);
+  const valid = validateProduct(data);
   if (valid) {
-    await manager.createStudent(data);
+    await manager.createProduct(data);
     res.status(200).json("Success");
   } else {
-    res.status(400).json("Not Valid!");
+    res.status(400).json({
+      message: validateProduct.errors.map((error) => {
+        return {
+          ...(!!error.instancePath && {
+            field: error.instancePath,
+          }),
+          message: error.message,
+          details: error.params,
+        };
+      }),
+    });
   }
+});
+
+// ERROR HANDLING MIDDLEWARE
+app.use((error, req, res, next) => {
+  console.log(err);
+  res.status(500).send("Something went wrong!");
 });
 
 // run server
