@@ -27,3 +27,6 @@
 
 post -> body
 get -> params
+
+# Validation 
+[AJV](https://ajv.js.org/json-schema.html)

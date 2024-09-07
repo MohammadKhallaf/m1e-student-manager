@@ -1,5 +1,6 @@
 const fs = require("fs").promises;
 const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 
 // Student <- Model
 
@@ -43,7 +44,7 @@ class StudentManager {
     // from app to app
     this.students.push({
       ...student,
-      id: Date.now() + Math.floor(Math.random() * 100),
+      id: uuidv4(),
     });
 
     await this.saveStudents();

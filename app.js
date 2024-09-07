@@ -1,19 +1,49 @@
 const express = require("express");
 const StudentManager = require("./studentsManager");
+const Ajv = require("ajv");
 
 const app = express();
 const manager = new StudentManager();
+const ajv = new Ajv();
+
+// title  -> title length>3
+// description
+// price -> required > 0
+// discount
+
+const studentSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      //  30
+    },
+    age: {
+      type: "number",
+      minimum: 5,
+      maximum: 60,
+    },
+    salary: {
+      type: "number",
+    },
+    NID: {
+      type: "string",
+    },
+  },
+  required: ["name", "NID"],
+  additionalProperties: false,
+};
+
+const validateStudent = ajv.compile(studentSchema);
 
 app.use(express.json()); // json parser
 
+//  environment variables
+
+const PORT = process.env.PORT || 3000;
+
 app.get("/", (req, res) => {
   res.send("Hello,world");
-});
-
-// get all
-app.get("/students", async (req, res) => {
-  const studentList = await manager.getAllStudents();
-  res.json(studentList);
 });
 
 // get one
@@ -21,6 +51,24 @@ app.get("/students/:id", async (req, res) => {
   const student = await manager.getStudentById(req.params.id);
   console.log(student);
   res.json(student);
+});
+
+// get filtered
+app.get("/students/", async (req, res) => {
+  const query = req.query;
+  // casting => + | Number()
+  const from = +query.from;
+  const to = +query.to;
+
+  if (from && to) {
+    console.log(from, to);
+    const studentList = await manager.getStudentByAgeFilter(from, to);
+
+    res.json(studentList);
+  } else {
+    const studentList = await manager.getAllStudents();
+    res.json(studentList);
+  }
 });
 
 // update
@@ -36,26 +84,19 @@ app.delete("/students/:id", async (req, res) => {
   res.json("Success");
 });
 
-// get filtered
-app.get("/students/", async (req, res) => {
-  const query = req.query;
-  // casting => + | Number()
-  const from = +query.from;
-  const to = +query.to;
-
-  const studentList = await manager.getStudentByAgeFilter(from, to);
-
-  res.json(studentList);
-});
-
 // create
 app.post("/students", async (request, res) => {
   const data = request.body;
-  await manager.createStudent(data);
-  res.status(200).json("Success");
+  const valid = validateStudent(data);
+  if (valid) {
+    await manager.createStudent(data);
+    res.status(200).json("Success");
+  } else {
+    res.status(400).json("Not Valid!");
+  }
 });
 
 // run server
-app.listen(3000, () => {
-  console.log("Server is running @ port", 3000);
+app.listen(PORT, () => {
+  console.log("Server is running @ port", PORT);
 });

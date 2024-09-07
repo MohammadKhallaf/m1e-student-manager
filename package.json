@@ -9,6 +9,8 @@
   "author": "mohammed",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "ajv": "^8.17.1",
+    "express": "^4.19.2",
+    "uuid": "^10.0.0"
   }
 }
