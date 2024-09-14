@@ -36,7 +36,7 @@ Controller <--> Route
   - `await Product.create({...data})`
 - Read
   - all -> `await Product.find()`
-  - one -> 
+  - one -> `await Product.findById(req.params.id).exec()`
   - filter -> **task**
 - Update -> **task**
 - Delete -> **task**
