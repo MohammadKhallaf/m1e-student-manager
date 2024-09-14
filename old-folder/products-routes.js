@@ -1,6 +1,6 @@
 const express = require("express");
 const Ajv = require("ajv");
-const authMiddleware = require("./middlewares/auth-middleware");
+const authMiddleware = require("../middlewares/auth-middleware");
 const ProductManager = require("./productManager");
 
 const router = express.Router();
