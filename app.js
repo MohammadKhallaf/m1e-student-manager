@@ -1,23 +1,22 @@
+const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 
-const mongoose = require("mongoose");
+// ROUTES
 const productsRoutes = require("./routes/product-routes");
 const authRoutes = require("./routes/auth-routes");
 
 require("dotenv").config();
 
-// const productsRoutes = require("./products-routes");
-
-const app = express();
-
 const PORT = +process.env.PORT || 3000;
-
+const MONGO_URL = process.env.MONGO_URL;
 const corsOptions = {
   origin: "*", // control the accepted domains to access our endpoint
 };
 
-mongoose.connect("mongodb://localhost:27017/m-two");
+const app = express();
+
+mongoose.connect(MONGO_URL);
 
 mongoose.connection
   .once("open", () => console.log("Connected to mongoDB"))
