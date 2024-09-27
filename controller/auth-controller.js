@@ -61,6 +61,7 @@ const login = async (request, response) => {
       message: "Logged in!",
       user: {
         username: currentUser.username,
+        _id: currentUser._id,
       },
     });
   } catch (e) {
