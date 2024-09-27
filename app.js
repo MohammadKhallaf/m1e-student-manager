@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const mongoose = require("mongoose");
 const productsRoutes = require("./routes/product-routes");
+const authRoutes = require("./routes/auth-routes");
 
 require("dotenv").config();
 
@@ -37,6 +38,7 @@ app.use((request, response, next) => {
 
 // productsRoutes
 app.use("/products", productsRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello,world");

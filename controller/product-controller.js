@@ -45,7 +45,7 @@ function createRandomProduct() {
     image: faker.image.urlLoremFlickr({
       width: 600,
       height: 400,
-      category: "product",
+      category: "cars",
     }),
   };
 }
